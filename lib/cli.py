@@ -3,6 +3,7 @@ from lib.database import session
 from lib.models import Student, Course, Grade, Attendance
 import sys
 
+
 def main_menu():
     while True:
         print("\n=== SCHOOL MANAGEMENT SYSTEM ===")
@@ -27,6 +28,7 @@ def main_menu():
             sys.exit()
         else:
             print("Invalid choice. Try again.")
+
 
 # ---------------- STUDENT MENU ---------------- #
 
@@ -54,11 +56,13 @@ def student_menu():
         else:
             print("Invalid choice.")
 
+
 def list_students():
     students = session.query(Student).all()
     print("\n--- STUDENTS ---")
     for s in students:
         print(f"{s.id}. {s.name} ({s.department})")
+
 
 def add_student():
     print("\n--- ADD STUDENT ---")
@@ -66,17 +70,16 @@ def add_student():
     age = int(input("Age: "))
     dept = input("Department: ")
 
-    new_stu = Student(name=name, age=age, department=dept)
-    session.add(new_stu)
+    session.add(Student(name=name, age=age, department=dept))
     session.commit()
+    print("✔ Student added")
 
-    print("Student added successfully!")
 
 def update_student():
     list_students()
     sid = int(input("\nEnter student ID to update: "))
 
-    student = session.query(Student).get(sid)
+    student = session.query(Student).filter(Student.id == sid).first()
     if not student:
         print("Student not found.")
         return
@@ -86,22 +89,24 @@ def update_student():
     student.department = input(f"New department ({student.department}): ") or student.department
 
     session.commit()
-    print("Student updated!")
+    print("✔ Student updated")
+
 
 def delete_student():
     list_students()
-    sid = int(input("\nEnter student ID to delete: "))
+    sid = int(input("\nEnter ID to delete: "))
 
-    student = session.query(Student).get(sid)
+    student = session.query(Student).filter(Student.id == sid).first()
     if not student:
-        print("Student not found.")
+        print("Not found.")
         return
 
     session.delete(student)
     session.commit()
-    print("Student deleted!")
+    print("✔ Student deleted")
 
-# ---------------- PLACEHOLDER MENUS ---------------- #
+
+# ---------------- COURSE MENU ---------------- #
 
 def course_menu():
     while True:
@@ -125,7 +130,7 @@ def course_menu():
         elif choice == "5":
             break
         else:
-            print("Invalid choice. Try again.")
+            print("Invalid choice.")
 
 
 def list_courses():
@@ -137,63 +142,58 @@ def list_courses():
 
 def add_course():
     print("\n--- ADD COURSE ---")
-    name = input("Course name: ")
-    code = input("Course code: ")
-    description = input("Description: ")
+    name = input("Name: ")
+    code = input("Code: ")
+    desc = input("Description: ")
 
-    new_course = Course(
-        name=name,
-        code=code,
-        description=description
-    )
-    session.add(new_course)
+    session.add(Course(name=name, code=code, description=desc))
     session.commit()
-
-    print("Course added successfully!")
+    print("✔ Course added")
 
 
 def update_course():
     list_courses()
-    cid = int(input("\nEnter course ID to update: "))
+    cid = int(input("\nEnter ID to update: "))
 
-    course = session.query(Course).get(cid)
+    course = session.query(Course).filter(Course.id == cid).first()
     if not course:
-        print("Course not found.")
+        print("Not found.")
         return
 
     course.name = input(f"New name ({course.name}): ") or course.name
     course.code = input(f"New code ({course.code}): ") or course.code
-    course.description = input(
-        f"New description ({course.description}): ") or course.description
+    course.description = input(f"New description: ") or course.description
 
     session.commit()
-    print("Course updated!")
+    print("✔ Course updated")
 
 
 def delete_course():
     list_courses()
-    cid = int(input("\nEnter course ID to delete: "))
+    cid = int(input("\nEnter ID to delete: "))
 
-    course = session.query(Course).get(cid)
+    course = session.query(Course).filter(Course.id == cid).first()
     if not course:
-        print("Course not found.")
+        print("Not found.")
         return
 
     session.delete(course)
     session.commit()
-    print("Course deleted!")
+    print("✔ Course deleted")
 
+
+# ---------------- GRADE MENU ---------------- #
 
 def grade_menu():
     while True:
         print("\n--- GRADE MENU ---")
-        print("1. List all grades")
+        print("1. List grades")
         print("2. Add grade")
         print("3. Update grade")
         print("4. Delete grade")
         print("5. Back")
 
-        choice = input("Choose an option: ")
+        choice = input("Choose: ")
 
         if choice == "1":
             list_grades()
@@ -205,96 +205,81 @@ def grade_menu():
             delete_grade()
         elif choice == "5":
             break
-        else:
-            print("Invalid choice.")
 
 
 def list_grades():
     grades = session.query(Grade).all()
     print("\n--- GRADES ---")
     for g in grades:
-        print(f"{g.id}. {g.student.name} - {g.course.name} | Score: {g.score} | Grade: {g.letter}")
+        print(f"{g.id}. {g.student.name} - {g.course.name} | {g.score} | {g.letter}")
 
 
 def add_grade():
     print("\n--- ADD GRADE ---")
-    
-    # List students
     students = session.query(Student).all()
-    print("\nStudents:")
+    courses = session.query(Course).all()
+
     for s in students:
         print(f"{s.id}. {s.name}")
+    student_id = int(input("Student ID: "))
 
-    student_id = int(input("Enter student ID: "))
-
-    # List courses
-    courses = session.query(Course).all()
-    print("\nCourses:")
     for c in courses:
-        print(f"{c.id}. {c.name} ({c.code})")
-
-    course_id = int(input("Enter course ID: "))
+        print(f"{c.id}. {c.name}")
+    course_id = int(input("Course ID: "))
 
     score = float(input("Score: "))
-    letter = input("Letter grade: ")
+    letter = input("Letter: ").upper()
 
-    new_grade = Grade(
-        student_id=student_id,
-        course_id=course_id,
-        score=score,
-        letter=letter
-    )
-
-    session.add(new_grade)
+    session.add(Grade(student_id=student_id, course_id=course_id, score=score, letter=letter))
     session.commit()
-    print("Grade added successfully!")
+    print("✔ Grade added")
 
 
 def update_grade():
     list_grades()
-    gid = int(input("\nEnter grade ID to update: "))
+    gid = int(input("\nEnter ID to update: "))
 
-    grade = session.query(Grade).get(gid)
+    grade = session.query(Grade).filter(Grade.id == gid).first()
     if not grade:
-        print("Grade not found.")
+        print("Not found.")
         return
 
-    print(f"\nUpdating grade for: {grade.student.name} in {grade.course.name}")
+    new_score = input(f"New score ({grade.score}): ")
+    new_letter = input(f"New letter ({grade.letter}): ").upper()
 
-    score = input(f"New score ({grade.score}): ")
-    letter = input(f"New letter ({grade.letter}): ")
-
-    grade.score = float(score) if score else grade.score
-    grade.letter = letter if letter else grade.letter
+    if new_score: grade.score = float(new_score)
+    if new_letter: grade.letter = new_letter
 
     session.commit()
-    print("Grade updated!")
+    print("✔ Grade updated")
 
 
 def delete_grade():
     list_grades()
-    gid = int(input("\nEnter grade ID to delete: "))
+    gid = int(input("\nEnter ID to delete: "))
 
-    grade = session.query(Grade).get(gid)
+    grade = session.query(Grade).filter(Grade.id == gid).first()
     if not grade:
-        print("Grade not found.")
+        print("Not found.")
         return
 
     session.delete(grade)
     session.commit()
-    print("Grade deleted!")
+    print("✔ Grade deleted")
 
+
+# ---------------- ATTENDANCE MENU ---------------- #
 
 def attendance_menu():
     while True:
         print("\n--- ATTENDANCE MENU ---")
-        print("1. List all attendance records")
-        print("2. Add attendance record")
-        print("3. Update attendance record")
-        print("4. Delete attendance record")
+        print("1. List records")
+        print("2. Add record")
+        print("3. Update record")
+        print("4. Delete record")
         print("5. Back")
 
-        choice = input("Choose an option: ")
+        choice = input("Choose: ")
 
         if choice == "1":
             list_attendance()
@@ -306,84 +291,67 @@ def attendance_menu():
             delete_attendance()
         elif choice == "5":
             break
-        else:
-            print("Invalid choice.")
+
 
 def list_attendance():
     records = session.query(Attendance).all()
-    print("\n--- ATTENDANCE RECORDS ---")
+    print("\n--- ATTENDANCE ---")
     for a in records:
         print(f"{a.id}. {a.student.name} | {a.course.name} | {a.date} | {a.status}")
 
 
 def add_attendance():
-    print("\n--- ADD ATTENDANCE ---")
-
-    # List students
     students = session.query(Student).all()
-    print("\nStudents:")
-    for s in students:
-        print(f"{s.id}. {s.name}")
-    student_id = int(input("Enter student ID: "))
-
-    # List courses
     courses = session.query(Course).all()
+
+    print("\nStudents:")
+    for s in students: print(f"{s.id}. {s.name}")
+    sid = int(input("Student ID: "))
+
     print("\nCourses:")
-    for c in courses:
-        print(f"{c.id}. {c.name} ({c.code})")
-    course_id = int(input("Enter course ID: "))
+    for c in courses: print(f"{c.id}. {c.name}")
+    cid = int(input("Course ID: "))
 
-    date = input("Enter date (YYYY-MM-DD): ")
-    status = input("Status (Present / Absent / Late): ").title()
+    date_str = input("Date (YYYY-MM-DD): ")
+    status = input("Status (Present/Absent/Late): ").title()
 
-    new_record = Attendance(
-        student_id=student_id,
-        course_id=course_id,
-        date=date,
-        status=status
-    )
-
-    session.add(new_record)
+    session.add(Attendance(student_id=sid, course_id=cid, date=date_str, status=status))
     session.commit()
-    print("Attendance record added!")
+    print("✔ Attendance added")
 
 
 def update_attendance():
     list_attendance()
-    aid = int(input("\nEnter attendance ID to update: "))
+    aid = int(input("\nEnter ID to update: "))
 
-    record = session.query(Attendance).get(aid)
+    record = session.query(Attendance).filter(Attendance.id == aid).first()
     if not record:
-        print("Record not found.")
+        print("Not found.")
         return
 
-    print(f"\nUpdating: {record.student.name} - {record.course.name}")
+    new_date = input(f"New date ({record.date}): ")
+    new_status = input(f"New status ({record.status}): ").title()
 
-    date = input(f"New date ({record.date}): ")
-    status = input(f"New status ({record.status}): ").title()
-
-    record.date = date if date else record.date
-    record.status = status if status else record.status
+    if new_date: record.date = new_date
+    if new_status: record.status = new_status
 
     session.commit()
-    print("Attendance updated!")
+    print("✔ Attendance updated")
 
 
 def delete_attendance():
     list_attendance()
-    aid = int(input("\nEnter attendance ID to delete: "))
+    aid = int(input("\nEnter ID to delete: "))
 
-    record = session.query(Attendance).get(aid)
+    record = session.query(Attendance).filter(Attendance.id == aid).first()
     if not record:
-        print("Record not found.")
+        print("Not found.")
         return
 
     session.delete(record)
     session.commit()
-    print("Attendance record deleted!")
+    print("✔ Attendance deleted")
 
-
-# ---------------- RUN CLI ---------------- #
 
 if __name__ == "__main__":
     main_menu()
