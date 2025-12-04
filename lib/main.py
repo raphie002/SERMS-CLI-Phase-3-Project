@@ -1,4 +1,4 @@
-
+# lib/main.py
 from lib.database import SessionLocal
 from lib.models import Student
 
