@@ -1,4 +1,4 @@
-
+# lib/cli.py
 from lib.database import session
 from lib.models import Student, Course, Grade, Attendance
 import sys
