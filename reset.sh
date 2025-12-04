@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 echo "🔥 Resetting database..."
 
 # STEP 1 — Remove old DB file
