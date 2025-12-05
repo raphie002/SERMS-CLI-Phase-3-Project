@@ -30,8 +30,6 @@ def main_menu():
             print("Invalid choice. Try again.")
 
 
-# ---------------- STUDENT MENU ---------------- #
-
 def student_menu():
     while True:
         print("\n--- STUDENT MENU ---")
@@ -106,8 +104,6 @@ def delete_student():
     print("✔ Student deleted")
 
 
-# ---------------- COURSE MENU ---------------- #
-
 def course_menu():
     while True:
         print("\n--- COURSE MENU ---")
@@ -181,8 +177,6 @@ def delete_course():
     session.commit()
     print("✔ Course deleted")
 
-
-# ---------------- GRADE MENU ---------------- #
 
 def grade_menu():
     while True:
@@ -267,8 +261,6 @@ def delete_grade():
     session.commit()
     print("✔ Grade deleted")
 
-
-# ---------------- ATTENDANCE MENU ---------------- #
 
 def attendance_menu():
     while True:
